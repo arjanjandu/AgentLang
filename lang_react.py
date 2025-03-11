@@ -3,6 +3,7 @@ from langchain.agents import initialize_agent, Tool, AgentType
 from langchain_openai import ChatOpenAI
 from dotenv import load_dotenv
 from game_maker import make_game
+from wiki import wiki_summary
 
 # Load environment variables
 load_dotenv()
@@ -31,6 +32,10 @@ def calculator(input_string: str):
     except:
         return "Please provide two valid integers separated by a comma or '+' sign."
 
+def get_wiki_summary(query: str):
+    """Get a summary from Wikipedia for the given query."""
+    return wiki_summary(query)
+
 # Define tools explicitly with clear descriptions
 tools = [
     Tool(
@@ -43,6 +48,11 @@ tools = [
         func=generate_game,
         description="Creates a simple HTML game. Supported games: snake, tetris, flappy bird.",
     ),
+    Tool(
+        name="WikipediaTool",
+        func=get_wiki_summary,
+        description="Get a summary from Wikipedia. Input should be a specific topic or question.",
+    ),
 ]
 
 # Load environment variables and initialize the OpenAI Chat Model
@@ -54,7 +64,7 @@ agent = initialize_agent(
     llm,
     agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
     handle_parsing_errors=True,
-    max_iterations=2,  # Avoid repeated calls
+    max_iterations=3,  # Avoid repeated calls
     verbose=True,
 )
 
@@ -65,6 +75,6 @@ def chat(prompt: str) -> str:
 
 # Run the agent interactively
 if __name__ == "__main__":
-    user_input = input("Enter your query (e.g., 'calculate 2+3', 'build a snake game', or 'calculate 2+3 and build a snake game'): ")
+    user_input = input("Enter your query (e.g., 'calculate 2+3', 'build a snake game', or 'what is Python' for Wikipedia lookups): ")
     response = chat(user_input)
     print("Response:", response)

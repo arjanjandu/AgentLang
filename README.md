@@ -1,6 +1,6 @@
 # LangGraph and LangChain Agent Framework
 
-A modular agent framework built with LangGraph and LangChain that dynamically calls tools based on user input. Currently includes a calculator, a Gmail reader, and an HTML game generator.
+A modular agent framework built with LangGraph and LangChain that dynamically calls tools based on user input. Currently includes a calculator, a Gmail reader, an HTML game generator, and a Wikipedia information retrieval tool.
 
 ## Quick Start
 
@@ -31,6 +31,7 @@ A modular agent framework built with LangGraph and LangChain that dynamically ca
 3. **Try it out**
    - Addition: "What is 5 + 10"
    - Game creation: "Make a game about snake"
+   - Wikipedia lookup: "What is Python programming"
    - Email (full version only): "Check my most recent email"
 
 ## Streamlit UI
@@ -80,6 +81,7 @@ This framework creates an agent that routes user requests to the appropriate too
 
 - **Calculator**: Adds two numbers from natural language input
 - **Game Generator**: Creates HTML5 games using OpenAI's API
+- **Wikipedia Tool**: Retrieves summary information from Wikipedia
 - **Gmail Reader** (optional): Fetches your most recent email
 
 The agent uses keyword matching to determine which tool to call and maintains state to track which tools have been used.
@@ -91,6 +93,8 @@ The framework provides three different implementations:
 1. **Standard (lang.py)**: Uses LangGraph for workflow management with Gmail integration
 2. **Simplified (lang_no_gmail.py)**: Same as standard but without Gmail functionality
 3. **ReAct (lang_react.py)**: Uses LangChain's ReAct agent pattern for more sophisticated reasoning
+
+All implementations include the Calculator, Game Generator, and Wikipedia tools, while only the standard implementation includes Gmail functionality.
 
 ### Benefits of ReAct Implementation
 
@@ -149,10 +153,45 @@ Add your own tools in three steps:
 
    For ReAct implementation, you only need to register the tool - the agent handles detection automatically.
 
+### Example: Wikipedia Tool Integration
+
+The Wikipedia tool demonstrates how to integrate external APIs:
+
+```python
+# 1. Import the underlying functionality
+from wiki import wiki_summary
+
+# 2. Create a stateful wrapper function
+def wiki_tool(input_string: str, state: AgentState) -> str:
+    """A tool that fetches summaries from Wikipedia."""
+    if "WikiTool" in state["called_tools"]:
+        return "The WikiTool has already been called."
+    state["called_tools"].add("WikiTool")
+    return wiki_summary(input_string)
+
+# 3. Add to tools dictionary
+"WikiTool": Tool(
+    name="WikiTool",
+    func=lambda x: wiki_tool(x, state),
+    description="Gets a summary from Wikipedia. Input: a topic to search for."
+)
+
+# 4. Update detection logic (in standard implementations)
+elif any(wiki_trigger in last_message.lower() for wiki_trigger in ["what is", "who is", "tell me about", "wikipedia", "wiki"]):
+    # Extract the topic after the trigger phrase
+    for trigger in ["what is", "who is", "tell me about", "wikipedia", "wiki"]:
+        if trigger in last_message.lower():
+            topic = last_message.lower().split(trigger)[-1].strip()
+            if topic:
+                tool_response = tools["WikiTool"].func(topic)
+                break
+```
+
 ## Notes
 
 - Each tool can only be called once per agent run
 - The game generator is experimental and demonstrates generative AI capabilities
+- The Wikipedia tool provides quick access to factual information
 - For simpler setup without Gmail, use `lang_no_gmail.py`
 - For more complex reasoning tasks, use `lang_react.py`
 - The framework can be extended with more sophisticated routing logic

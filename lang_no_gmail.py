@@ -6,6 +6,7 @@ from langchain_core.tools import Tool
 from langchain_core.messages import HumanMessage, AIMessage
 from dotenv import load_dotenv
 from game_maker import make_game
+from wiki import wiki_summary
 
 # Load environment variables
 load_dotenv()
@@ -62,6 +63,13 @@ def add(input_string: str, state: AgentState) -> str:
     
     return "I couldn't identify two numbers to add. Please provide two numbers separated by a comma or '+' sign."
 
+def wiki_tool(input_string: str, state: AgentState) -> str:
+    """A tool that fetches summaries from Wikipedia."""
+    if "WikiTool" in state["called_tools"]:
+        return "The WikiTool has already been called."
+    state["called_tools"].add("WikiTool")
+    return wiki_summary(input_string)
+
 # Define tools, passing state explicitly
 def create_tools(state: AgentState):
     return {
@@ -74,6 +82,11 @@ def create_tools(state: AgentState):
             name="GameGenerator",
             func=lambda x: make_game_tool(x, state),
             description="Generates an HTML game based on input (e.g., 'snake'). Opens in browser when done."
+        ),
+        "WikiTool": Tool(
+            name="WikiTool",
+            func=lambda x: wiki_tool(x, state),
+            description="Gets a summary from Wikipedia. Input: a topic to search for."
         )
     }
 
@@ -88,8 +101,18 @@ def agent_node(state: AgentState):
         tool_response = tools["Calculator"].func(last_message)
     elif "game" in last_message.lower():
         tool_response = tools["GameGenerator"].func(last_message.split("game")[-1].strip())
+    elif any(wiki_trigger in last_message.lower() for wiki_trigger in ["what is", "who is", "tell me about", "wikipedia", "wiki"]):
+        # Extract the topic after the trigger phrase
+        for trigger in ["what is", "who is", "tell me about", "wikipedia", "wiki"]:
+            if trigger in last_message.lower():
+                topic = last_message.lower().split(trigger)[-1].strip()
+                if topic:
+                    tool_response = tools["WikiTool"].func(topic)
+                    break
+        else:
+            tool_response = "Please specify a topic to search on Wikipedia."
     else:
-        tool_response = "I'm not sure what to do with that input. I can add numbers or make games!"
+        tool_response = "I'm not sure what to do with that input. I can add numbers, make games, or look up information on Wikipedia!"
 
     return {
         "messages": messages + [AIMessage(content=tool_response)],
@@ -133,6 +156,6 @@ def chat(prompt: str) -> str:
 
 # Get user input and run
 if __name__ == "__main__":
-    user_input = input("Enter your query (e.g., do simple addition, build a html game): ")
+    user_input = input("Enter your query (e.g., do simple addition, build a html game, or 'what is Python' for Wikipedia lookups): ")
     response = run_agent(user_input)
     print("Response:", response) 

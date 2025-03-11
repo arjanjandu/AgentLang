@@ -3,9 +3,9 @@ from importlib import import_module
 
 # Mapping of script names to their file names
 AGENT_SCRIPTS = {
-    "Lang Agent - [GMAIL - Make Game - Add]": "lang",
-    "Lang React - [Make game - Add]": "lang_react",
-    "Lang No Gmail (True Agent) - [Make-game  Add]": "lang_no_gmail",
+    "Lang Agent - [GMAIL - Make Game - Add - Wiki]": "lang",
+    "Lang React - [Make game - Add - Wiki]": "lang_react",
+    "Lang No Gmail (True Agent) - [Make-game - Add - Wiki]": "lang_no_gmail",
 }
 
 st.title("Unified Agent Chat UI")
