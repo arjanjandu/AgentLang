@@ -1,4 +1,4 @@
-# LangGraph Agent Framework
+# LangGraph and LangChain Agent Framework
 
 A modular agent framework built with LangGraph and LangChain that dynamically calls tools based on user input. Currently includes a calculator, a Gmail reader, and an HTML game generator.
 
