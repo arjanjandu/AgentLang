@@ -13,3 +13,6 @@ google-auth-oauthlib>=1.1.0
 
 # HTML parsing
 html-parser>=0.2 
+
+# UI
+streamlit

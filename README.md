@@ -23,12 +23,56 @@ A modular agent framework built with LangGraph and LangChain that dynamically ca
    python lang.py
    # ReAct implementation (recommended for more complex reasoning)
    python lang_react.py
+   
+   # Or use the Streamlit UI to access all agents
+   streamlit run agent_chat_ui.py
    ```
 
 3. **Try it out**
    - Addition: "What is 5 + 10"
    - Game creation: "Make a game about snake"
    - Email (full version only): "Check my most recent email"
+
+## Streamlit UI
+
+The project includes a unified chat interface built with Streamlit that allows you to interact with all agent implementations in one place:
+
+1. **Start the UI**
+   ```bash
+   streamlit run agent_chat_ui.py
+   ```
+
+2. **Select an agent**
+   - Use the dropdown menu in the sidebar to switch between different agent implementations:
+     - "Lang Agent" (with Gmail, game creation, and calculator)
+     - "Lang React" (ReAct implementation with game creation and calculator)
+     - "Lang No Gmail" (standard agent without Gmail)
+
+3. **Chat with the agent**
+   - Type your queries in the chat input field
+   - View the conversation history in the main area
+   - Seamlessly switch between different agent implementations
+
+The UI maintains separate chat sessions for each agent, making it easy to compare their responses to the same queries.
+
+### Making Your Custom Agents UI-Compatible
+
+If you create your own agent implementation, you can integrate it with the Streamlit UI by:
+
+1. **Add a chat function to your agent file**:
+   ```python
+   def chat(prompt: str) -> str:
+       # Call your agent's main function here
+       return run_agent(prompt)  # Or whatever your agent's main function is
+   ```
+
+2. **Register it in agent_chat_ui.py**:
+   ```python
+   AGENT_SCRIPTS = {
+       # Existing agents...
+       "Your Agent Name": "your_agent_file_name_without_py",
+   }
+   ```
 
 ## Core Functionality
 

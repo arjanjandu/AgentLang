@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bomberman Game</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background: #222;
+            color: white;
+            font-family: Arial, sans-serif;
+        }
+        #gameCanvas {
+            background: #444;
+            border: 2px solid #fff;
+            display: block;
+            image-rendering: pixelated;
+        }
+        #controls {
+            display: flex;
+            justify-content: center;
+            margin-top: 10px;
+        }
+        .control-button {
+            background: #666;
+            color: white;
+            border: none;
+            padding: 10px;
+            margin: 5px;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+        .control-button:hover {
+            background: #888;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="400" height="400"></canvas>
+    <div id="controls">
+        <button class="control-button" onclick="move('up')">Up</button>
+        <button class="control-button" onclick="move('down')">Down</button>
+        <button class="control-button" onclick="move('left')">Left</button>
+        <button class="control-button" onclick="move('right')">Right</button>
+        <button class="control-button" onclick="placeBomb()">Bomb</button>
+    </div>
+    <script>
+        // Initialize canvas and context
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        // Game constants
+        const cellSize = 40;
+        const player = { x: 0, y: 0, size: cellSize, color: 'blue' };
+        const bombs = [];
+        const explosions = [];
+        let score = 0;
+        let gameOver = false;
+
+        // Event listener for keyboard controls
+        document.addEventListener('keydown', (e) => {
+            if (gameOver) return;
+            switch (e.key) {
+                case 'ArrowUp': move('up'); break;
+                case 'ArrowDown': move('down'); break;
+                case 'ArrowLeft': move('left'); break;
+                case 'ArrowRight': move('right'); break;
+                case ' ': placeBomb(); break;
+            }
+        });
+
+        // Function to move the player
+        function move(direction) {
+            if (gameOver) return;
+            switch (direction) {
+                case 'up': player.y = Math.max(0, player.y - cellSize); break;
+                case 'down': player.y = Math.min(canvas.height - cellSize, player.y + cellSize); break;
+                case 'left': player.x = Math.max(0, player.x - cellSize); break;
+                case 'right': player.x = Math.min(canvas.width - cellSize, player.x + cellSize); break;
+            }
+            draw();
+        }
+
+        // Function to place a bomb
+        function placeBomb() {
+            if (gameOver) return;
+            const bomb = { x: player.x, y: player.y, timer: 100 };
+            bombs.push(bomb);
+        }
+
+        // Update game state
+        function update() {
+            if (gameOver) return;
+            for (let i = bombs.length - 1; i >= 0; i--) {
+                bombs[i].timer--;
+                if (bombs[i].timer <= 0) {
+                    explosions.push({ x: bombs[i].x, y: bombs[i].y, timer: 30 });
+                    bombs.splice(i, 1);
+                }
+            }
+            for (let i = explosions.length - 1; i >= 0; i--) {
+                explosions[i].timer--;
+                if (explosions[i].timer <= 0) {
+                    explosions.splice(i, 1);
+                }
+            }
+            checkCollisions();
+        }
+
+        // Check for collisions
+        function checkCollisions() {
+            for (const explosion of explosions) {
+                if (explosion.x === player.x && explosion.y === player.y) {
+                    gameOver = true;
+                }
+            }
+        }
+
+        // Draw the game elements
+        function draw() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = player.color;
+            ctx.fillRect(player.x, player.y, player.size, player.size);
+
+            ctx.fillStyle = 'red';
+            for (const bomb of bombs) {
+                ctx.fillRect(bomb.x, bomb.y, cellSize, cellSize);
+            }
+
+            ctx.fillStyle = 'orange';
+            for (const explosion of explosions) {
+                ctx.fillRect(explosion.x, explosion.y, cellSize, cellSize);
+            }
+
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.fillText(`Score: ${score}`, 10, canvas.height - 10);
+
+            if (gameOver) {
+                ctx.fillStyle = 'black';
+                ctx.globalAlpha = 0.7;
+                ctx.fillRect(0, 0, canvas.width, canvas.height);
+                ctx.globalAlpha = 1.0;
+                ctx.fillStyle = 'white';
+                ctx.fillText('Game Over', canvas.width / 2 - 50, canvas.height / 2 - 20);
+                ctx.fillText('Press F5 to Restart', canvas.width / 2 - 80, canvas.height / 2 + 20);
+            }
+        }
+
+        // Main game loop
+        function gameLoop() {
+            update();
+            draw();
+            requestAnimationFrame(gameLoop);
+        }
+
+        // Start the game
+        gameLoop();
+    </script>
+</body>
+</html>

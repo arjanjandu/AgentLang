@@ -133,6 +133,18 @@ def run_agent(user_input: str):
     result = graph.invoke(initial_state)
     return result["messages"][-1].content
 
+def run_agent(user_input: str):
+    initial_state = {
+        "messages": [HumanMessage(content=user_input)],
+        "called_tools": set()
+    }
+    result = graph.invoke(initial_state)
+    return result["messages"][-1].content
+
+# Add this function for Streamlit integration:
+def chat(prompt: str) -> str:
+    return run_agent(prompt)
+
 # Get user input and run
 if __name__ == "__main__":
     user_input = input("Enter your query (e.g., do simple addition, check most recent email, build a html game): ")

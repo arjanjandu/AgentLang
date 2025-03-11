@@ -54,8 +54,14 @@ agent = initialize_agent(
     tools,
     llm,
     agent=AgentType.CHAT_ZERO_SHOT_REACT_DESCRIPTION,
+    handle_parsing_errors=True,
     verbose=True,
 )
+
+
+def chat(prompt: str) -> str:
+    response = agent.run(prompt)
+    return response
 
 # Run the agent
 if __name__ == "__main__":
