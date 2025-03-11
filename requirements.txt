@@ -1,0 +1,14 @@
+# Core dependencies
+langgraph>=0.0.30
+langchain-openai>=0.0.3
+langchain-core>=0.1.5
+openai>=1.6.0
+python-dotenv>=1.0.0
+
+# Gmail API integration
+google-api-python-client>=2.100.0
+google-auth-httplib2>=0.1.0
+google-auth-oauthlib>=1.1.0
+
+# HTML parsing
+html-parser>=0.2 
