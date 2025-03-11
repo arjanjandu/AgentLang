@@ -16,10 +16,13 @@ A modular agent framework built with LangGraph and LangChain that dynamically ca
    # Create .env file with your OpenAI API key
    echo "OPENAI_API_KEY=your_key_here" > .env
    
-   # Run without Gmail integration
+   # Choose one of these implementations:
+   # Standard implementation without Gmail
    python lang_no_gmail.py
-   # OR with Gmail (requires additional setup)
+   # Full implementation with Gmail (requires additional setup)
    python lang.py
+   # ReAct implementation (recommended for more complex reasoning)
+   python lang_react.py
    ```
 
 3. **Try it out**
@@ -36,6 +39,25 @@ This framework creates an agent that routes user requests to the appropriate too
 - **Gmail Reader** (optional): Fetches your most recent email
 
 The agent uses keyword matching to determine which tool to call and maintains state to track which tools have been used.
+
+## Implementation Options
+
+The framework provides three different implementations:
+
+1. **Standard (lang.py)**: Uses LangGraph for workflow management with Gmail integration
+2. **Simplified (lang_no_gmail.py)**: Same as standard but without Gmail functionality
+3. **ReAct (lang_react.py)**: Uses LangChain's ReAct agent pattern for more sophisticated reasoning
+
+### Benefits of ReAct Implementation
+
+The ReAct implementation offers several advantages:
+
+- **Better reasoning**: Uses a think-act-observe loop for improved decision-making
+- **Dynamic tool selection**: Agent autonomously decides which tool to use based on the query
+- **Explainable actions**: Provides reasoning for each step in its decision process
+- **More flexible parsing**: Better handling of ambiguous or complex queries
+
+Choose the ReAct implementation when working with complex tasks that require multi-step reasoning.
 
 ## Setup Details
 
@@ -81,11 +103,14 @@ Add your own tools in three steps:
 
 3. **Update detection logic in agent_node function**
 
+   For ReAct implementation, you only need to register the tool - the agent handles detection automatically.
+
 ## Notes
 
 - Each tool can only be called once per agent run
 - The game generator is experimental and demonstrates generative AI capabilities
 - For simpler setup without Gmail, use `lang_no_gmail.py`
+- For more complex reasoning tasks, use `lang_react.py`
 - The framework can be extended with more sophisticated routing logic
 
 This project is open source and available under the MIT License. 
