@@ -10,4 +10,3 @@ def wiki_summary(query):
     except wikipedia.exceptions.PageError:
         return "No page found."
 
-wiki_summary("Python")  # Returns a summary of the Wikipedia page for Python
